@@ -30,7 +30,11 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-pthread" />
 		</Compiler>
+		<Linker>
+			<Add option="-pthread" />
+		</Linker>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
