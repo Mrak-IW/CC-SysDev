@@ -30,11 +30,14 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="main.cpp" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
+			<envvars />
 			<code_completion />
+			<lib_finder disable_auto="1" />
 			<debugger />
 		</Extensions>
 	</Project>
