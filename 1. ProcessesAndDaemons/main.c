@@ -7,7 +7,9 @@
 
 void forkchild()
 {
-	printf("I'm forked child! My PID is %d\n", (int)getpid());
+	printf("I'm forked daemon-child! Kill me if you can!!! My PID is %d\n", (int)getpid());
+	sleep(200);
+	printf("Daemos says you BYE BYE!!!");
 }
 
 int main(int argc, char *argv[])
@@ -29,11 +31,13 @@ int main(int argc, char *argv[])
 	else
 	{
 		//This is a child process
+		setsid();
 		forkchild();
 		return 0;
 	}
 
 	//spawn() is not implemented in Linux
+
 
 	const char* execCmd = "/bin/ls";
 	const char* execParam1 = "-lah";
