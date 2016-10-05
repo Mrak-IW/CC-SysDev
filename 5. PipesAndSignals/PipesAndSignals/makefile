@@ -4,13 +4,12 @@ src=./src/
 inc=./include/
 out=./output/
 
-EXENAME=PipesAndSignals
-EXECUTABLE=$(addprefix $(out), $(EXENAME))
+VPATH = $(src):$(inc):$(out)
 
-SRCNAMES=main.c
-OBJNAMES=$(SRCNAMES:.c=.o)
-SOURCES=$(addprefix $(src), $(SRCNAMES))
-OBJECTS=$(addprefix $(out), $(OBJNAMES))
+EXECUTABLE=PipesAndSignals
+
+SOURCES=main.c
+OBJECTS=$(SOURCES:.c=.o)
 
 CC=gcc
 CCFLAGS=-c -Wall -g -ggdb -O0
@@ -27,9 +26,9 @@ run: $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS)
 	@echo *$@:
 	@printf '\t%s\n' $^
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $(out)$@ $^
 	
-$(out)main.o: $(src)main.c
+main.o: main.c
 	@echo *$@:
 	@printf '\t%s\n' $^
-	$(CC) $(CCFLAGS) -o $@ $<
+	$(CC) $(CCFLAGS) -o $(out)$@ $<
