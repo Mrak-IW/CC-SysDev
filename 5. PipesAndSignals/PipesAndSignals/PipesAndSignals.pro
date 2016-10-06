@@ -4,5 +4,10 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    src/main.c
+    src/main.c \
+    src/secondProcessFunction.c \
+    src/firstProcessFunction.c
+
+HEADERS += \
+    include/processFunctions.h
 

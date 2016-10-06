@@ -1,0 +1,2 @@
+void firstProcessFunction();
+void secondProcessFunction();
