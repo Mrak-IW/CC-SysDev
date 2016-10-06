@@ -7,9 +7,12 @@ out=./output/
 VPATH = $(src):$(inc):$(out)
 
 EXECUTABLE=PipesAndSignals
+SOURCES:=main.c
+OBJECTS:=$(SOURCES:.c=.o)
 
-SOURCES=main.c
-OBJECTS=$(SOURCES:.c=.o)
+SOURCES:=$(addprefix $(src), $(SOURCES))
+OBJECTS:=$(addprefix $(out), $(OBJECTS))
+EXECUTABLE:=$(addprefix $(out), $(EXECUTABLE))
 
 CC=gcc
 CCFLAGS=-c -Wall -g -ggdb -O0
@@ -26,9 +29,9 @@ run: $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS)
 	@echo *$@:
 	@printf '\t%s\n' $^
-	$(CC) $(LDFLAGS) -o $(out)$@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 	
-main.o: main.c
+$(out)main.o: main.c
 	@echo *$@:
 	@printf '\t%s\n' $^
-	$(CC) $(CCFLAGS) -o $(out)$@ $<
+	$(CC) $(CCFLAGS) -o $@ $<
