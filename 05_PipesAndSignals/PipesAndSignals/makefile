@@ -31,11 +31,30 @@ LDFLAGS =
 
 export 
 
-all: $(EXECUTABLE)
+all: $(EXECUTABLE) giveExecRights
 #	@printf "\n\tMaking ALL\n"
 #	@printf "\tOBJECTS: %s\n" $(OBJECTS)
 #	@printf "\tSUBOBJECTS: %s\n" $(SUBOBJECTS)
 #	@printf "\tEXECUTABLE: %s\n" $(EXECUTABLE)
+
+run: $(EXECUTABLE) giveExecRights
+	@printf '\n%s\n\n' 'Running the program:'
+	@$<
+	@printf '\n'
+	
+install: $(EXECUTABLE) giveExecRights
+	mkdir -p $(installPath)
+	cp -uf $< $(installPath)
+	
+install-strip: install
+	strip -d $(installPath)$(execName)
+	
+clean:
+#	@printf "\n\tRemoving temporary files\n"
+	rm -rf $(out)
+	
+giveExecRights: $(EXECUTABLE)	
+	@chmod 755 $<
 	
 subm1:
 #	@printf "\n\tCalling make M1\n"
@@ -49,10 +68,6 @@ $(out):
 #	@printf "\n\tCreating output directory:\n\t%s\n" '$@'
 	mkdir -p '$@'
 
-clean:
-#	@printf "\n\tRemoving temporary files\n"
-	rm -f $(out)*
-
 $(EXECUTABLE): subm1 subm2 $(OBJECTS)
 #	@printf "\tOBJECTS: %s\n" $(OBJECTS)
 #	@printf "\tALLOBJECTS: %s\n" $(ALLOBJECTS)
@@ -62,7 +77,4 @@ $(EXECUTABLE): subm1 subm2 $(OBJECTS)
 $(out)main.o: main.c $(out)
 	@printf "\n\tCOMPILING: %s\n" '$@'
 	$(CC) $(CCFLAGS) -o '$@' '$<'
-	
-test:
-	@printf "\nEEEEEEEEE\t\n"
 	
