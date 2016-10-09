@@ -17,22 +17,21 @@ srcNames:= \
 	main.c 
 
 objNames = $(srcNames:.c=.o) 
-	
-subObjNames = $(shell ls -1 $(out) | grep .*\.o$) 
-	
+
 SOURCES := $(addprefix $(src), $(srcNames))
 OBJECTS := $(addprefix $(out), $(objNames))
 EXECUTABLE := $(addprefix $(out), $(execName))
 
-SUBOBJECTS = $(addprefix $(out), $(subObjNames))
-
+allObjNames = $(shell ls -1 $(out) | grep .*\.o$) 
+ALLOBJECTS = $(addprefix $(out), $(allObjNames))
+		
 CC := gcc
 CCFLAGS := -c -Wall -g -ggdb -O0 -I$(inc)
 LDFLAGS =
 
 export 
 
-all: subm1 subm2 $(EXECUTABLE)
+all: $(EXECUTABLE)
 #	@printf "\n\tMaking ALL\n"
 #	@printf "\tOBJECTS: %s\n" $(OBJECTS)
 #	@printf "\tSUBOBJECTS: %s\n" $(SUBOBJECTS)
@@ -52,18 +51,18 @@ $(out):
 
 clean:
 #	@printf "\n\tRemoving temporary files\n"
-	rm -rf $(out)
+	rm -f $(out)*
 
-$(EXECUTABLE): $(OBJECTS) $(SUBOBJECTS)
+$(EXECUTABLE): subm1 subm2 $(OBJECTS)
 #	@printf "\tOBJECTS: %s\n" $(OBJECTS)
-#	@printf "\tSUBOBJECTS: %s\n" $(SUBOBJECTS)
-#	@printf "\n\tLINKING: %s\n" '$^'
-	$(CC) $(LDFLAGS) -o '$@' $^
+#	@printf "\tALLOBJECTS: %s\n" $(ALLOBJECTS)
+	@printf "\n\tLINKING: %s\n" '$@'
+	$(CC) $(LDFLAGS) -o '$@' $(ALLOBJECTS)
 	
 $(out)main.o: main.c $(out)
 	@printf "\n\tCOMPILING: %s\n" '$@'
 	$(CC) $(CCFLAGS) -o '$@' '$<'
 	
 test:
-	@printf "\n\tVPATH: %s\n" '$(VPATH)'
+	@printf "\nEEEEEEEEE\t\n"
 	
