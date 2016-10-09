@@ -11,16 +11,14 @@
 Кто дал: Vitaliy Artym<br />
 Дедлайн: ХЗ<br />
 
-Create Makefile for simple projects:
+<p>Create Makefile for simple projects:<br />
+./src – place for all C/C++ files<br />
+./src/m1<br />
+./src/m1/include<br />
+./src/m2<br />
+./src/m2/include<br />
+./include – header files<br />
+./output – the place for object files and binary</p>
 
-./src – place for all C/C++ files
-
-./include – header files
-
-./output – the place for object files and binary
-
-
-There are need to create targets for: all, clear, install, uninstall,
-install_strip.
-
+There are need to create targets for: all, clear, install, uninstall, install_strip.
 object files, asm files should be saved in output.
