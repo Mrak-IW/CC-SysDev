@@ -15,7 +15,7 @@ void firstProcessFunction(int pipeEnds[2])
 	и записываем данные в канал. */
 	stream = fdopen(pipeEnds[1], "w");
 
-	fprintf(stream, "Hello from parent.");
+	fprintf(stream, "Hello from parent via a pipe.");
 	fflush(stream);
 	close(pipeEnds[1]);
 }

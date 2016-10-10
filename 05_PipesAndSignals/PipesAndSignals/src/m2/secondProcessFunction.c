@@ -4,8 +4,6 @@ void secondProcessFunction(int pipeEnds[2])
 {
 	printf("Child: I'm Process the Second\n");
 
-	FILE* stream;
-
 	/* Это дочерний процесс. Закрываем копию входного конца
 	канала */
 
