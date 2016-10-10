@@ -78,3 +78,6 @@ $(out)main.o: main.c $(out)
 	@printf "\n\tCOMPILING: %s\n" '$@'
 	$(CC) $(CCFLAGS) -o '$@' '$<'
 	
+test:
+	printf "\n\tTEST: %s\n" $(shell ls -1 $(out) | grep .*\.o$)
+	

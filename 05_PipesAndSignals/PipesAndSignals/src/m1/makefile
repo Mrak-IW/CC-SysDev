@@ -33,3 +33,7 @@ $(out):
 $(out)firstProcessFunction.o: firstProcessFunction.c $(out)
 #	@printf "\n\tCOMPILING: %s\n" '$@'
 	$(CC) $(CCFLAGS) -o '$@' '$<'
+	
+test:
+	printf "\n\tTEST: \n\t" "ls -1 $(src) | grep .*\.c"
+	printf "\n\tTEST: %s\n" $(shell ls -1 $(src) | grep .*\.c$)
