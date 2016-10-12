@@ -1,0 +1,2 @@
+noinst_LIBRARIES = libm1.a
+libm1_a_SOURCES = firstProcessFunction.c

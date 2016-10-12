@@ -1,0 +1,4 @@
+bin_PROGRAMS = executableName
+executableName_SOURCES = main.c
+
+executableName_LDADD = libm1.a libm1.a

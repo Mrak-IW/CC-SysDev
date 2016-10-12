@@ -1,4 +1,4 @@
-#include "processFunctions.h"
+#include "../include/processFunctions.h"
 
 int main(void)
 {

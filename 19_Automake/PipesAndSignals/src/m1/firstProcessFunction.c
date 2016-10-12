@@ -1,4 +1,4 @@
-#include "processFunctions.h"
+#include "include/processFunctions.h"
 
 void firstProcessFunction(int pipeEnds[2])
 {

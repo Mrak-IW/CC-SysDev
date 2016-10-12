@@ -1,0 +1,2 @@
+noinst_LIBRARIES = libm2.a
+libm2_a_SOURCES = secondProcessFunction.c
