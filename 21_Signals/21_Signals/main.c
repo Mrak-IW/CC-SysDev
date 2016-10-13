@@ -5,17 +5,19 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
 
 void parentSigHandler(int signum, siginfo_t *siginfo, void * context)
 {
 	union sigval value = siginfo->si_value;
 	char* sigtype = (signum == SIGUSR1 ? "UNIX" : "RT");
+	char* sigDescr = strsignal(signum);
 
-	printf("Parent:\tSIG:%s received\n", sigtype);
-	printf("\tVAL:%d\n", value.sival_int);
+	printf("Parent:\tSIG: %s %d received\n", sigtype, signum);
+	printf("\tVAL:\t%d\n", value.sival_int);
 	/*printf("Parent:\tSI_CODE:%d received\n", siginfo->si_code);
-	printf("Parent:\tSI_ERRNO:%d received\n", siginfo->si_errno);
-	printf("Parent:\tSI_SIGNO:%d received\n", siginfo->si_signo);*/
+	printf("Parent:\tSI_ERRNO:%d received\n", siginfo->si_errno);*/
+	printf("\tSI_SIGNO: %d\n", siginfo->si_signo);
 }
 
 void parentProcess(pid_t child_pid)
@@ -27,7 +29,7 @@ void parentProcess(pid_t child_pid)
 	sa_flags |= SA_SIGINFO;
 
 	action.sa_sigaction = &parentSigHandler;
-	action.sa_flags = SA_SIGINFO;
+	action.sa_flags = sa_flags;
 	sigemptyset(&(action.sa_mask));
 	sigaction(SIGUSR1, &action, NULL);
 	sigaction(SIGRTMIN + 1, &action, NULL);
