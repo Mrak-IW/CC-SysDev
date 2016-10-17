@@ -2,20 +2,28 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 
-static int __init hi(void)
+static int testParam = 42;
+static const char moduleMarker[] = "MODTEST";
+
+module_param(testParam, int, 0644);
+MODULE_PARM_DESC(testParam, "Description of the parameter.");
+
+static int __init paramModuleHello(void)
 {
-	printk(KERN_INFO "MODTEST: Example module being loaded.\n");
-	return 0;
+    printk(KERN_INFO "%s: moduleParam module being loaded.\n", moduleMarker);
+    printk(KERN_INFO "%s: Initial value of testParam = %d.\n", moduleMarker, testParam);
+    return 0;
 }
 
-static void __exit bye(void)
+static void __exit paramModuleBye(void)
 {
-	printk(KERN_INFO "MODTEST: Example module being unloaded.\n");
+    printk(KERN_INFO "%s: moduleParam module being unloaded.\n", moduleMarker);
+    printk(KERN_INFO "%s: Final value of testParam = %d.\n", moduleMarker, testParam);
 }
 
-module_init(hi);
-module_exit(bye);
+module_init(paramModuleHello);
+module_exit(paramModuleBye);
 
-MODULE_AUTHOR("Ostware");
+MODULE_AUTHOR("Ostware/Denis Maslov");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Description of the example module.");
