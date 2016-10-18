@@ -10,8 +10,12 @@
 #include <asm/errno.h>
 #include <linux/kthread.h>
 #include <linux/delay.h>
+#include <linux/semaphore.h>
+#include <linux/string.h>
 
 #define MAXLEN 255
+
+static DEFINE_SEMAPHORE(sem_allowCalculations);	/*Initialize semaphore with count=1*/
 
 static const char moduleMarker[] = "MODTEST";
 static const char devName[] = "ccchardev";
@@ -28,19 +32,24 @@ unsigned int actualLen;
 // Function executed by kernel thread
 static int thread_fn(void *unused)
 {
-    // Allow the SIGKILL signal
-    allow_signal(SIGKILL);
-    while (!kthread_should_stop())
-    {
-        printk(KERN_INFO "%s: Thread Running\n", moduleMarker);
-        ssleep(5);
-        // Check if the signal is pending
-        if (signal_pending(current))
-            break;
-    }
-    printk(KERN_INFO "%s: Thread Stopping\n", moduleMarker);
-    do_exit(0);
-    return 0;
+	// Allow the SIGKILL signal
+	allow_signal(SIGKILL);
+
+	while (!kthread_should_stop())
+	{
+		if(!down_trylock(&sem_allowCalculations))
+		{
+			printk(KERN_INFO "%s: Thread is doing something\n", moduleMarker);
+			printk(KERN_INFO "%s: Semaphore locked\n", moduleMarker);
+		}
+		ssleep(1);
+		// Check if the signal is pending
+		if (signal_pending(current))
+			break;
+	}
+	printk(KERN_INFO "%s: Thread Stopping\n", moduleMarker);
+	do_exit(0);
+	return 0;
 }
 
 static int my_open(struct inode *i, struct file *f)
@@ -55,27 +64,42 @@ static int my_close(struct inode *i, struct file *f)
 }
 
 static ssize_t my_read(struct file *f, char __user *buf, size_t len, loff_t *off)
-{   
-    if(*off > 0)
-        return 0; /* End of file */
+{
+	if(*off > 0)
+		return 0; /* End of file */
 
-    if (copy_to_user(buf, m, actualLen))
-        return -EFAULT;
+	if (copy_to_user(buf, m, actualLen))
+		return -EFAULT;
 
-    *off = actualLen;
+	*off = actualLen;
 
-    printk(KERN_INFO "%s: Driver read(%lld: %s)\n", moduleMarker, *off, buf);
+	printk(KERN_INFO "%s: Driver read(%lld: %s)\n", moduleMarker, *off, buf);
 
-    return actualLen;
+	return actualLen;
 }
 static ssize_t my_write(struct file *f, const char __user *buf, size_t len,	loff_t *off)
 {
-	actualLen = (len > MAXLEN ? len % MAXLEN : len) + 1;
+	actualLen = (len > MAXLEN ? len % MAXLEN : len);
 	if (copy_from_user(m, buf, actualLen) != 0)
 	{
 		return -EFAULT;
 	}
-	m[actualLen] = 0;
+
+	int i;
+	for(i = 0; i < actualLen; i++)
+	{
+		int buf = m[i];
+		printk(KERN_INFO "%s: m[%d] = '%d'\n", moduleMarker, i, buf);
+	}
+
+	/*Making zero-terminated string*/
+	m[actualLen - 1] = 0;
+
+	if(!strcmp(m, "dosmth"))
+	{
+		up(&sem_allowCalculations);
+		printk(KERN_INFO "%s: Semaphore free\n", moduleMarker);
+	}
 
 	printk(KERN_INFO "%s: Driver write(%d: %s)\n", moduleMarker, len, m);
 	return len;
@@ -92,7 +116,7 @@ static struct file_operations pugs_fops =
 
 static int __init hello(void)
 {
-    int ret;
+	int ret;
 	struct device *dev_ret;
 
 	if ((ret = alloc_chrdev_region(&first, 0, 1, devName)) < 0)
@@ -126,7 +150,6 @@ static int __init hello(void)
 	sprintf(m, "test\n");
 	m[MAXLEN] = 0;
 
-
 	printk(KERN_INFO "%s: Creating Thread\n", moduleMarker);
 	thread_st = kthread_run(thread_fn, NULL, "mythread");
 	if (thread_st)
@@ -141,9 +164,12 @@ static int __init hello(void)
 
 static void __exit bye(void)
 {
-	printk(KERN_INFO "%s: Cleaning Up\n", moduleMarker);
+	printk(KERN_INFO "%s: Cleaning Up:\n", moduleMarker);
+	
+	up(&sem_allowCalculations);
+	printk(KERN_INFO "%s: --Semaphore free\n", moduleMarker);
 
-    cdev_del(&c_dev);
+	cdev_del(&c_dev);
 	device_destroy(cl, first);
 	class_destroy(cl);
 	unregister_chrdev_region(first, 1);
@@ -151,9 +177,9 @@ static void __exit bye(void)
 	if (thread_st)
 	{
 		kthread_stop(thread_st);
-		printk(KERN_INFO "%s: Thread stopped", moduleMarker);
+		printk(KERN_INFO "%s: --Thread stopped", moduleMarker);
 	}
-	printk(KERN_INFO "%s: module unregistered.\n", moduleMarker);
+	printk(KERN_INFO "%s: --module unregistered.\n", moduleMarker);
 	printk(KERN_INFO "%s: - - - - - - - - - - -\n", moduleMarker);
 }
 
