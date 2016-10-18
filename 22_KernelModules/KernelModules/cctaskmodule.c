@@ -29,6 +29,8 @@ static struct task_struct *thread_st;
 static char m[MAXLEN + 1];
 unsigned int actualLen;
 
+static int value = 0;
+
 // Function executed by kernel thread
 static int thread_fn(void *unused)
 {
@@ -39,10 +41,12 @@ static int thread_fn(void *unused)
 	{
 		if(!down_trylock(&sem_allowCalculations))
 		{
-			printk(KERN_INFO "%s: Thread is doing something\n", moduleMarker);
+			//printk(KERN_INFO "%s: Thread is doing something\n", moduleMarker);
+			value *= value;
+			printk(KERN_INFO "%s: The value^2 = %d\n", moduleMarker, value);
 			printk(KERN_INFO "%s: Semaphore locked\n", moduleMarker);
 		}
-		ssleep(1);
+		msleep(10);
 		// Check if the signal is pending
 		if (signal_pending(current))
 			break;
@@ -68,6 +72,10 @@ static ssize_t my_read(struct file *f, char __user *buf, size_t len, loff_t *off
 	if(*off > 0)
 		return 0; /* End of file */
 
+	//itoa(value, m, 10);
+	sprintf(m, "%d", value);
+	actualLen = strlen(m);
+
 	if (copy_to_user(buf, m, actualLen))
 		return -EFAULT;
 
@@ -85,21 +93,28 @@ static ssize_t my_write(struct file *f, const char __user *buf, size_t len,	loff
 		return -EFAULT;
 	}
 
-	int i;
-	for(i = 0; i < actualLen; i++)
-	{
-		int buf = m[i];
-		printk(KERN_INFO "%s: m[%d] = '%d'\n", moduleMarker, i, buf);
-	}
-
 	/*Making zero-terminated string*/
 	m[actualLen - 1] = 0;
 
-	if(!strcmp(m, "dosmth"))
+	//long int strtol(const char *str, char **endptr, int base)
+
+	long x;
+	if(kstrtol(m, 10, &x))
+	{
+		printk(KERN_INFO "%s: '%s' is not an decimal integer\n", moduleMarker, m);
+	}
+	else
+	{
+		value = x;
+		printk(KERN_INFO "%s: Semaphore free\n", moduleMarker);
+		up(&sem_allowCalculations);
+	}
+
+	/*if(!strcmp(m, "dosmth"))
 	{
 		up(&sem_allowCalculations);
 		printk(KERN_INFO "%s: Semaphore free\n", moduleMarker);
-	}
+	}*/
 
 	printk(KERN_INFO "%s: Driver write(%d: %s)\n", moduleMarker, len, m);
 	return len;

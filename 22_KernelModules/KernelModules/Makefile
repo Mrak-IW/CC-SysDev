@@ -18,9 +18,16 @@ clean:
 
 tests:
 	@printf "\n"
-	echo test_message > /dev/$(charDevName)
+	echo 3 > /dev/$(charDevName)
 	@printf "\n"
 	cat /dev/$(charDevName)
+	@printf "\n"
+	@printf "\n"
+	echo -5 > /dev/$(charDevName)
+	@printf "\n"
+	cat /dev/$(charDevName)
+	@printf "\n"
+	@printf "\n"
 	
 log:
 	@printf "\n"
