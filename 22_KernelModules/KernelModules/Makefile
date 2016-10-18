@@ -16,13 +16,15 @@ build:
 clean:
 	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c *.symvers *.order
 
-check:
+tests:
 	@printf "\n"
-	echo test > /dev/$(charDevName)
+	echo test_message > /dev/$(charDevName)
 	@printf "\n"
 	cat /dev/$(charDevName)
+	
+log:
 	@printf "\n"
-	dmesg | grep $(moduleMarker) | tail -n 15
+	dmesg | grep $(moduleMarker) | tail -n 30
 	@printf "\n"
 	lsmod | grep $(chdevModuleName)
 	@printf "\n"
@@ -30,6 +32,7 @@ check:
 	@printf "\n"
 	ls -lah /dev | grep $(charDevName)
 
+check: tests log
 
 install: $(chdevModuleName).ko
 #	modprobe -v $(shell pwd)/$(chdevModuleName).ko
